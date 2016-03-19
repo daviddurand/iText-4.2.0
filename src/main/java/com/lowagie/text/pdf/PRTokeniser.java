@@ -259,7 +259,7 @@ public class PRTokeniser {
 		String n1 = null;
 		String n2 = null;
 		int ptr = 0;
-		while (nextToken()) {
+		while (nextToken() || level == 2) {
 			if (type == TK_COMMENT) {
 				continue;
 			}
@@ -302,6 +302,14 @@ public class PRTokeniser {
 		// unexpectedly),
 		// or the last token ended exactly at the end of a stream. This last
 		// case can occur inside an Object Stream.
+		if (type == TK_ENDOFFILE && level > 0)
+
+		{
+			file.seek(ptr);
+			type = TK_NUMBER;
+			stringValue = n1;
+		}
+
 	}
 
 	public boolean nextToken() throws IOException {

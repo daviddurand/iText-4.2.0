@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lowagie</groupId>
 	<artifactId>itext</artifactId>
-    <version>4.2.0-tizra-7</version>
+    <version>4.2.0-tizra-8</version>
 	<licenses>
     <license>
       <name>GNU General Lesser Public License (LGPL) version 3.0</name>
@@ -118,4 +118,8 @@
        <developerConnection>scm:git:https://github.com/daviddurand/iText-4.2.0.git</developerConnection>
 	</scm>
 
+	<organization>
+	    <name>Tizra Inc.</name>
+	    <url>http://www.tizra.com/</url>
+	</organization>
 </project>
