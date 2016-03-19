@@ -68,7 +68,7 @@ import java.util.ListIterator;
 
 /**
  * Extracts text from a PDF file.
- * 
+ *
  * @since 2.1.4
  */
 public class PdfTextExtractor {
@@ -85,7 +85,7 @@ public class PdfTextExtractor {
 	/**
 	 * Creates a new Text Extractor object, using a {@link TextAssembler} as the
 	 * render listener
-	 * 
+	 *
 	 * @param reader
 	 *            the reader with the PDF
 	 */
@@ -96,7 +96,7 @@ public class PdfTextExtractor {
 	/**
 	 * Creates a new Text Extractor object, using a {@link TextAssembler} as the
 	 * render listener
-	 * 
+	 *
 	 * @param reader
 	 *            the reader with the PDF
 	 * @param usePdfMarkupElements
@@ -108,7 +108,7 @@ public class PdfTextExtractor {
 
 	/**
 	 * Creates a new Text Extractor object.
-	 * 
+	 *
 	 * @param reader
 	 *            the reader with the PDF
 	 * @param renderListener
@@ -122,7 +122,7 @@ public class PdfTextExtractor {
 
 	/**
 	 * Gets the content bytes of a page.
-	 * 
+	 *
 	 * @param pageNum
 	 *            the 1-based page number of page you want get the content
 	 *            stream from
@@ -135,7 +135,8 @@ public class PdfTextExtractor {
 			final PdfDictionary pageDictionary = reader.getPageN(pageNum);
 			final PdfObject contentObject = pageDictionary
 					.get(PdfName.CONTENTS);
-			final byte[] contentBytes = getContentBytesFromContentObject(contentObject);
+			final byte[] contentBytes = getContentBytesFromContentObject(
+					contentObject);
 			return contentBytes;
 		} finally {
 			f.close();
@@ -145,7 +146,7 @@ public class PdfTextExtractor {
 	/**
 	 * Gets the content bytes from a content object, which may be a reference a
 	 * stream or an array.
-	 * 
+	 *
 	 * @param contentObject
 	 *            the object to read bytes from
 	 * @return the content bytes
@@ -188,7 +189,7 @@ public class PdfTextExtractor {
 
 	/**
 	 * Gets the text from a page.
-	 * 
+	 *
 	 * @param page
 	 *            the 1-based page number of page
 	 * @return a String with the content as plain text (without PDF syntax)
@@ -201,7 +202,7 @@ public class PdfTextExtractor {
 
 	/**
 	 * get the text from the page
-	 * 
+	 *
 	 * @param page
 	 *            page number we are interested in
 	 * @param useContainerMarkup
@@ -226,7 +227,7 @@ public class PdfTextExtractor {
 
 	/**
 	 * Processes PDF syntax
-	 * 
+	 *
 	 * @param contentBytes
 	 *            the bytes of a content stream
 	 * @param resources
@@ -239,8 +240,8 @@ public class PdfTextExtractor {
 			PdfContentStreamHandler handler) {
 		handler.pushContext("div class='t-extracted-page'");
 		try {
-			PdfContentParser ps = new PdfContentParser(new PRTokeniser(
-					contentBytes));
+			PdfContentParser ps = new PdfContentParser(
+					new PRTokeniser(contentBytes));
 			ArrayList<PdfObject> operands = new ArrayList<PdfObject>();
 			while (ps.parse(operands).size() > 0) {
 				PdfLiteral operator = (PdfLiteral) operands
