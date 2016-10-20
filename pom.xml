@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lowagie</groupId>
 	<artifactId>itext</artifactId>
-    <version>4.2.0-tizra-9</version>
+    <version>4.2.0-tizra-10</version>
 	<licenses>
     <license>
       <name>GNU General Lesser Public License (LGPL) version 3.0</name>
@@ -111,7 +111,9 @@
 
 	<name>iText-4.2.0 -- we had to fork it!</name>
 	<url>https://github.com/daviddurand/iText-4.2.0</url>
-	<description>This is a build of the last MPL version of iText.  </description>
+	<description>This is a build of the last MPL version of iText. It includes independently developed bug fixes created by Tizra. All such changes are released under GPL v. 2.0 (not subsequent versions).
+
+Some source files have been automatically reformatted by Eclipse. Sorry about that, but consistent formatting helps me find some bugs/thinkos.</description>
 	<scm>
        <url>scm:git:https://github.com/daviddurand/iText-4.2.0.git</url>
        <connection>scm:git:https://github.com/daviddurand/iText-4.2.0.git</connection>
