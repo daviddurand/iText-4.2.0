@@ -50,9 +50,9 @@ import java.util.Collection;
  * We'll get called on a variety of marked section content (perhaps including
  * the results of nested sections), and will assemble it into an order as we
  * can.
- * 
+ *
  * @author dgd
- * 
+ *
  */
 public class MarkedUpTextAssembler implements TextAssembler {
 	private PdfReader _reader;
@@ -70,7 +70,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 	/**
 	 * as we get new content (final or not), we accumulate it until we reach the
 	 * end of a parsing unit
-	 * 
+	 *
 	 * Each parsing unit may have a tag name that should wrap its content
 	 */
 	Collection<TextAssemblyBuffer> partialWords = new ArrayList<TextAssemblyBuffer>();
@@ -87,7 +87,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 	/**
 	 * Remember an unassembled chunk until we hit the end of this element, or we
 	 * hit an assembled chunk, and need to pull things together.
-	 * 
+	 *
 	 * @param unassembled
 	 *            chunk of text rendering instruction to contribute to final
 	 *            text
@@ -100,7 +100,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 	/**
 	 * Slot fully-assembled chunk into our result at the current location. If
 	 * there are unassembled chunks waiting, assemble them first.
-	 * 
+	 *
 	 * @param completed
 	 *            This is a chunk from a nested element
 	 */
@@ -143,7 +143,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 			return null;
 		}
 		StringBuffer res = new StringBuffer();
-		if (_usePdfMarkupElements) {
+		if (_usePdfMarkupElements && !containingElementName.isEmpty()) {
 			res.append('<').append(containingElementName).append('>');
 		}
 		for (FinalText item : result) {
@@ -151,7 +151,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 		}
 		// important, as the stuff buffered in the result is now used up!
 		result.clear();
-		if (_usePdfMarkupElements) {
+		if (_usePdfMarkupElements && !containingElementName.isEmpty()) {
 			res.append("</");
 			int spacePos = containingElementName.indexOf(' ');
 			if (spacePos >= 0) {
@@ -186,7 +186,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see com.lowagie.text.pdf.parser.TextAssembler#reset()
 	 */
 	@Override
@@ -204,7 +204,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 	/**
 	 * Captures text using a simplified algorithm for inserting hard returns and
 	 * spaces
-	 * 
+	 *
 	 * @see com.lowagie.text.pdf.parser.AbstractRenderListener#renderText(java.lang.String,
 	 *      com.lowagie.text.pdf.parser.GraphicsState,
 	 *      com.lowagie.text.pdf.parser.Matrix,
@@ -252,10 +252,10 @@ public class MarkedUpTextAssembler implements TextAssembler {
 			_inProgress = partialWord;
 			// System.out.println("<< Hard Return >>");
 		} else if (spacing < partialWord.getSingleSpaceWidth() / 2.5) {
-			_inProgress = new Word(_inProgress.getText().trim()
-					+ partialWord.getText().trim(), partialWord.getAscent(),
-					partialWord.getDescent(), lastStart,
-					partialWord.getEndPoint(),
+			_inProgress = new Word(
+					_inProgress.getText().trim() + partialWord.getText().trim(),
+					partialWord.getAscent(), partialWord.getDescent(),
+					lastStart, partialWord.getEndPoint(),
 					partialWord.getSingleSpaceWidth());
 		} else {
 			result.add(_inProgress.getFinalText(_reader, _page, this));
@@ -265,7 +265,7 @@ public class MarkedUpTextAssembler implements TextAssembler {
 
 	/**
 	 * Getter.
-	 * 
+	 *
 	 * @see SimpleTextExtractingPdfContentRenderListener#_reader
 	 * @return reader
 	 */

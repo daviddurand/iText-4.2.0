@@ -280,10 +280,9 @@ public class PdfContentStreamHandler {
 			PdfDictionary extGState = resources.getAsDict(PdfName.EXTGSTATE);
 			if (extGState == null) {
 				throw new IllegalArgumentException(
-						MessageLocalization
-								.getComposedMessage(
-										"resources.do.not.contain.extgstate.entry.unable.to.process.operator.1",
-										getOperatorName()));
+						MessageLocalization.getComposedMessage(
+								"resources.do.not.contain.extgstate.entry.unable.to.process.operator.1",
+								getOperatorName()));
 			}
 			PdfDictionary gsDic = extGState.getAsDict(dictionaryName);
 			if (gsDic == null) {
@@ -368,7 +367,8 @@ public class PdfContentStreamHandler {
 
 			PdfDictionary fontsDictionary = resources.getAsDict(PdfName.FONT);
 			CMapAwareDocumentFont font = new CMapAwareDocumentFont(
-					(PRIndirectReference) fontsDictionary.get(fontResourceName));
+					(PRIndirectReference) fontsDictionary
+							.get(fontResourceName));
 
 			handler.gs().font = font;
 			handler.gs().fontSize = size;
@@ -639,7 +639,7 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * @param renderListener
-	 * 
+	 *
 	 */
 	public PdfContentStreamHandler(TextAssembler renderListener) {
 		this.renderListener = renderListener;
@@ -652,11 +652,11 @@ public class PdfContentStreamHandler {
 	 * operator string is encountered during content processing. Each operator
 	 * may be registered only once (it is not legal to have multiple operators
 	 * with the same operatorString)
-	 * 
+	 *
 	 * @param operator
 	 *            the operator that will receive notification when the operator
 	 *            is encountered
-	 * 
+	 *
 	 * @since 2.1.7
 	 */
 	public void registerContentOperator(ContentOperator operator) {
@@ -684,9 +684,9 @@ public class PdfContentStreamHandler {
 		@Override
 		public void invoke(ArrayList<PdfObject> operands,
 				PdfContentStreamHandler handler, PdfDictionary resources) {
-			PdfName name = (PdfName) operands.get(0);
-			String realName = name.toString().substring(1);
-			if ("Artifact".equals(realName)) {
+			PdfName tagName = (PdfName) operands.get(0);
+			String realName = tagName.toString().substring(1).toLowerCase();
+			if ("artifact".equals(tagName) || "placedpdf".equals(tagName)) {
 				handler.pushContext(null);
 			} else {
 				handler.pushContext(realName);
@@ -710,8 +710,8 @@ public class PdfContentStreamHandler {
 		@Override
 		public void invoke(ArrayList<PdfObject> operands,
 				PdfContentStreamHandler handler, PdfDictionary resources) {
-			String tagName = ((PdfName) operands.get(0)).toString()
-					.substring(1).toLowerCase();
+			String tagName = ((PdfName) operands.get(0)).toString().substring(1)
+					.toLowerCase();
 			if ("artifact".equals(tagName) || "placedpdf".equals(tagName)
 					|| handler.contextNames.peek() == null) {
 				tagName = null;
@@ -719,15 +719,20 @@ public class PdfContentStreamHandler {
 				tagName = "ul";
 			}
 			PdfDictionary attrs = getBDCDictionary(operands, resources);
-			if (attrs != null) {
+			if (attrs != null && tagName != null) {
 				PdfString alternateText = attrs.getAsString(PdfName.E);
 				if (alternateText != null) {
 					handler.pushContext(tagName);
-					handler.textFragments.add(new FinalText(alternateText
-							.toString()));
+					handler.textFragments
+							.add(new FinalText(alternateText.toString()));
 					handler.popContext();
+					// ignore rest of the content of this element
 					handler.pushContext(null);
 					return;
+				} else if (attrs.get(PdfName.TYPE) != null) {
+					// ignore tag for non-tag marked content that sometimes
+					// shows up.
+					tagName = "";
 				}
 			}
 			handler.pushContext(tagName);
@@ -782,20 +787,25 @@ public class PdfContentStreamHandler {
 	protected void installDefaultOperators() {
 		operators = new HashMap<String, ContentOperator>();
 
-		registerContentOperator(new PdfContentStreamHandler.PushGraphicsState());
+		registerContentOperator(
+				new PdfContentStreamHandler.PushGraphicsState());
 		registerContentOperator(new PdfContentStreamHandler.PopGraphicsState());
-		registerContentOperator(new PdfContentStreamHandler.ModifyCurrentTransformationMatrix());
-		registerContentOperator(new PdfContentStreamHandler.ProcessGraphicsStateResource());
+		registerContentOperator(
+				new PdfContentStreamHandler.ModifyCurrentTransformationMatrix());
+		registerContentOperator(
+				new PdfContentStreamHandler.ProcessGraphicsStateResource());
 
 		PdfContentStreamHandler.SetTextCharacterSpacing tcOperator = new PdfContentStreamHandler.SetTextCharacterSpacing();
 		registerContentOperator(tcOperator);
 		PdfContentStreamHandler.SetTextWordSpacing twOperator = new PdfContentStreamHandler.SetTextWordSpacing();
 		registerContentOperator(twOperator);
-		registerContentOperator(new PdfContentStreamHandler.SetTextHorizontalScaling());
+		registerContentOperator(
+				new PdfContentStreamHandler.SetTextHorizontalScaling());
 		PdfContentStreamHandler.SetTextLeading tlOperator = new PdfContentStreamHandler.SetTextLeading();
 		registerContentOperator(tlOperator);
 		registerContentOperator(new PdfContentStreamHandler.SetTextFont());
-		registerContentOperator(new PdfContentStreamHandler.SetTextRenderMode());
+		registerContentOperator(
+				new PdfContentStreamHandler.SetTextRenderMode());
 		registerContentOperator(new PdfContentStreamHandler.SetTextRise());
 
 		registerContentOperator(new PdfContentStreamHandler.BeginText());
@@ -803,9 +813,11 @@ public class PdfContentStreamHandler {
 
 		PdfContentStreamHandler.TextMoveStartNextLine tdOperator = new PdfContentStreamHandler.TextMoveStartNextLine();
 		registerContentOperator(tdOperator);
-		registerContentOperator(new PdfContentStreamHandler.TextMoveStartNextLineWithLeading(
-				tdOperator, tlOperator));
-		registerContentOperator(new PdfContentStreamHandler.TextSetTextMatrix());
+		registerContentOperator(
+				new PdfContentStreamHandler.TextMoveStartNextLineWithLeading(
+						tdOperator, tlOperator));
+		registerContentOperator(
+				new PdfContentStreamHandler.TextSetTextMatrix());
 		PdfContentStreamHandler.TextMoveNextLine tstarOperator = new PdfContentStreamHandler.TextMoveNextLine(
 				tdOperator);
 		registerContentOperator(tstarOperator);
@@ -815,8 +827,9 @@ public class PdfContentStreamHandler {
 		PdfContentStreamHandler.MoveNextLineAndShowText tickOperator = new PdfContentStreamHandler.MoveNextLineAndShowText(
 				tstarOperator, tjOperator);
 		registerContentOperator(tickOperator);
-		registerContentOperator(new PdfContentStreamHandler.MoveNextLineAndShowTextWithSpacing(
-				twOperator, tcOperator, tickOperator));
+		registerContentOperator(
+				new PdfContentStreamHandler.MoveNextLineAndShowTextWithSpacing(
+						twOperator, tcOperator, tickOperator));
 		registerContentOperator(new PdfContentStreamHandler.ShowTextArray());
 		// marked sections
 		registerContentOperator(new BeginMarked());
@@ -826,10 +839,10 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * Get the operator to process a command with a given name
-	 * 
+	 *
 	 * @param operatorName
 	 *            name of the operator that we might need to call
-	 * 
+	 *
 	 * @return the operator or null if none present
 	 */
 	public ContentOperator lookupOperator(String operatorName) {
@@ -838,7 +851,7 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * Invokes an operator.
-	 * 
+	 *
 	 * @param operator
 	 *            the PDF Syntax of the operator
 	 * @param operands
@@ -882,7 +895,7 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * Returns the current graphics state.
-	 * 
+	 *
 	 * @return the graphics state
 	 */
 	GraphicsState gs() {
@@ -903,7 +916,7 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * Returns the current text matrix.
-	 * 
+	 *
 	 * @return the text matrix
 	 * @since 2.1.5
 	 */
@@ -913,7 +926,7 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * Returns the current line matrix.
-	 * 
+	 *
 	 * @return the line matrix
 	 * @since 2.1.5
 	 */
@@ -924,7 +937,7 @@ public class PdfContentStreamHandler {
 	/**
 	 * Adjusts the text matrix for the specified adjustment value (see TJ
 	 * operator in the PDF spec for information)
-	 * 
+	 *
 	 * @param tj
 	 *            the text adjustment
 	 */
@@ -937,10 +950,10 @@ public class PdfContentStreamHandler {
 	/**
 	 * Decodes a PdfString (which will contain glyph ids encoded in the font's
 	 * encoding) based on the active font, and determine the unicode equivalent
-	 * 
+	 *
 	 * @param in
 	 *            the String that needs to be encoded
-	 * 
+	 *
 	 * @return the encoded String
 	 * @since 2.1.7
 	 */
@@ -958,7 +971,7 @@ public class PdfContentStreamHandler {
 
 	/**
 	 * Displays text.
-	 * 
+	 *
 	 * @param string
 	 *            the text to display
 	 */
